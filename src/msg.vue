@@ -125,9 +125,6 @@ export default {
 }
 </script>
 <style lang="less">
-span{
-  display: inline-block;
-}
 body,div{
   margin: 0;
   padding: 0;
