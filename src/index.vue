@@ -59,7 +59,7 @@
     <a-modal v-model:open="configShow" title="配置" @ok="configOk()" okText="提交" cancelText="取消" ref="configRef"
       @cancel="configCancel()" width="100%" wrap-class-name="full-modal">
       <a-form :model="config" autocomplete="off" @finish="configOk()" @finishFailed="() => { }">
-        <a-form-item label="子窗口置顶，需要重新打开子窗口" name="top">
+        <a-form-item label="子窗口是否置顶，修改此配置会重新打开子窗口" name="top">
           <a-switch v-model:checked="config.top" />
         </a-form-item>
         <a-form-item label="弹幕设置" name="danmu" class="danmulabel">
@@ -153,7 +153,6 @@ export default {
     })
   },
   async mounted() {
-    console.log(import.meta.env.VITE_DEBUG)
     if (!import.meta.env.VITE_DEBUG) {webset()}
   },
   data() {
@@ -262,10 +261,22 @@ export default {
         message.error('请选择来访显示')
         return
       }
+      let source_config = JSON.parse(localStorage.getItem('config'))
       localStorage.setItem('config', JSON.stringify(this.config))
       emit('configchange', {})
-      // for (let k in this.window_type) {
-      // }
+      if(source_config.top != this.config.top){
+        let wins = []
+        for (let k in this.window_type) {
+          let temp = WebviewWindow.getByLabel(`window-${k}`)
+          if(temp){
+            wins.push(k)
+            await temp.close()
+          }
+        }
+        for(let k = 0; k < wins.length; k++){
+          await this.openwin(wins[k])
+        }
+      }
       this.configShow = false
     },
     configCancel() {
