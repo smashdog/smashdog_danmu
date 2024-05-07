@@ -111,6 +111,7 @@ import { fetch as httpFetch, ResponseType } from '@tauri-apps/api/http'
 
 export default {
   async created() {
+    this.config = JSON.parse(localStorage.getItem('config'))
     this.version = await getVersion()
     let list = localStorage.getItem('list')
     if (list) {
@@ -122,7 +123,6 @@ export default {
         await this.openwin(k)
       }
     }
-    this.config = JSON.parse(localStorage.getItem('config'))
     appWindow.once('tauri://close-requested', async () => {
       try {
         for (let k in this.window_type) {
