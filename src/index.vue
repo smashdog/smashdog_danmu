@@ -292,28 +292,23 @@ export default {
         message.error('请填写房间号（bilibili为主播身份码，在开播里可以找到）')
         return
       }
-      let error = ''
-      let list = localStorage.getItem('list') ? JSON.parse(localStorage.getItem('list')) : []
-      list.forEach((v, key) => {
-        if (!this.form.key) {
-          if (v.platform === this.form.platform && v.roomId === this.form.roomId) {
-            error = `${this.form.platform}房间号${this.form.roomId}已存在`
-            return
-          }
-        } else {
-          if (v.platform === this.form.platform && v.roomId === this.form.roomId && key !== this.form.key) {
-            error = `${this.form.platform}房间号${this.form.roomId}已存在`
-            return
-          }
-        }
-      })
-      if (error.length > 0) {
-        message.error(error)
-        return
-      }
       if (this.list.data.length >= 5) {
         message.error('为了性能考虑，最多只能添加5个房间')
         return
+      }
+      let list = localStorage.getItem('list') ? JSON.parse(localStorage.getItem('list')) : []
+      for(let k = 0; k < list.length; k ++){
+        if (typeof this.form.key != 'undefined') {
+          if (list[k].platform === this.form.platform && list[k].roomId === this.form.roomId && k !== this.form.key) {
+            message.error(`${this.form.platform}房间号${this.form.roomId}已存在`)
+            return
+          }
+        } else {
+          if (list[k].platform === this.form.platform && list[k].roomId === this.form.roomId) {
+            message.error(`${this.form.platform}房间号${this.form.roomId}已存在`)
+            return
+          }
+        }
       }
       if (typeof this.form.key != 'undefined') {
         this.list.data[this.form.key] = this.form
