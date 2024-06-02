@@ -415,22 +415,23 @@ export default {
       localStorage.setItem(`${window_type}_window_show`, 'true')
       const monitor = await currentMonitor()
       let width = 480, height = 515
-      if(localStorage.getItem(`${window_type}-size`)){
-        const size = JSON.parse(localStorage.getItem(`${window_type}-size`))
-        if(size.width && size.height){
-          width = size.width / monitor.scaleFactor
-          height = size.height / monitor.scaleFactor
-        }
-      }else if (monitor) {
-        width = monitor.size.width / monitor.scaleFactor / 4;
-        height = (monitor.size.height / monitor.scaleFactor - 156 / monitor.scaleFactor) / 2
-      }
+      // if(localStorage.getItem(`${window_type}-size`)){
+      //   const size = JSON.parse(localStorage.getItem(`${window_type}-size`))
+      //   if(size.width && size.height){
+      //     width = size.width / monitor.scaleFactor
+      //     height = size.height / monitor.scaleFactor
+      //   }
+      // }else
+      // if (monitor) {
+      //   width = monitor.size.width / monitor.scaleFactor / 4;
+      //   height = (monitor.size.height / monitor.scaleFactor - 156 / monitor.scaleFactor) / 2
+      // }
       let x = 0, y = 0
-      if(localStorage.getItem(`${window_type}-position`)){
-        const position = JSON.parse(localStorage.getItem(`${window_type}-position`))
-        x = position.x / monitor.scaleFactor
-        y = position.y / monitor.scaleFactor
-      }else{
+      // if(localStorage.getItem(`${window_type}-position`)){
+      //   const position = JSON.parse(localStorage.getItem(`${window_type}-position`))
+      //   x = position.x / monitor.scaleFactor
+      //   y = position.y / monitor.scaleFactor
+      // }else{
         switch (window_type) {
           case 'msg':
             x = monitor.size.width / monitor.scaleFactor - width
@@ -443,7 +444,7 @@ export default {
             x = monitor.size.width / monitor.scaleFactor - width * 2
             break
         }
-      }
+      // }
       new WebviewWindow(`window-${window_type}`, {
         url: `${window_type}.html`,
         title: this.window_type[window_type],
