@@ -55,9 +55,13 @@ export default {
         
       }
     })
-    const unlisten1 = await listen('configchange', (event) => {
+    let win = WebviewWindow.getByLabel('window-in')
+    const unlisten1 = await listen('configchange', async (event) => {
       try {
         this.config = JSON.parse(localStorage.getItem('config'))
+        if(this.config.backgroundColor){
+          document.body.style.backgroundColor = this.config.backgroundColor
+        }
       } catch (error) {
         
       }
@@ -67,7 +71,6 @@ export default {
       unlisten1()
       unlistenall()
     })
-    let win = WebviewWindow.getByLabel('window-in')
     win.once('tauri://close-requested', async () => {
       let position = await win.innerPosition()
       let size = await win.innerSize()
@@ -80,6 +83,9 @@ export default {
   },
   mounted() {
     if(!import.meta.env.VITE_DEBUG) {webset()}
+    if(this.config.backgroundColor){
+      document.body.style.backgroundColor = this.config.backgroundColor
+    }
   },
   data() {
     return {

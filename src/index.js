@@ -37,8 +37,10 @@ if (!localStorage.getItem('config')) {
       roomId: true, // 房间号
       platform: true, // 平台
       fans: true, // 灯牌
-    },
+    }, // 显示平台
     header: false, // 头像
+    backgroundColor: '#00ff00', // 背景色
+    decorations: true, // 边框
   }))
 }
 if(!localStorage.getItem('msg_window_show')){

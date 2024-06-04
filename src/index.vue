@@ -14,6 +14,7 @@
         <a-form-item label="进场窗口" name="in">
           <a-switch v-model:checked="window_show.in" @change="danmuWindow('in')"></a-switch>
         </a-form-item>
+        <br>
       </a-form>
       <a-button type="primary" @click="add()" v-if="list.data.length < 5">添加房间</a-button>
       <a-button type="primary" @click="configShow = true">弹幕配置</a-button>
@@ -59,8 +60,14 @@
     <a-modal v-model:open="configShow" title="配置" @ok="configOk()" okText="提交" cancelText="取消" ref="configRef"
       @cancel="configCancel()" width="100%" wrap-class-name="full-modal">
       <a-form :model="config" autocomplete="off" @finish="configOk()" @finishFailed="() => { }">
-        <a-form-item label="子窗口是否置顶，修改此配置会重新打开子窗口" name="top">
+        <a-form-item label="子窗口是否置顶" name="top">
           <a-switch v-model:checked="config.top" />
+        </a-form-item>
+        <a-form-item label="子窗口是否显示边框" name="decorations">
+          <a-switch v-model:checked="config.decorations" />
+        </a-form-item>
+        <a-form-item label="子窗口背景色" name="backgroundColor">
+          <a-input v-model:value="config.backgroundColor" type="color" />
         </a-form-item>
         <a-form-item label="弹幕设置" name="danmu" class="danmulabel">
           <a-radio-group v-model:value="config.danmu" button-style="solid" size="small">
@@ -167,7 +174,7 @@ export default {
       window_show: {
         msg: false,
         gift: false,
-        in: false
+        in: false,
       },
       configShow: false,
       config: {
@@ -183,6 +190,8 @@ export default {
           fans: true, // 灯牌
         }, // 显示平台
         header: false, // 头像
+        backgroundColor: '#00ff00', // 背景色
+        decorations: true, // 边框
       },
       form: {
         roomId: '',
@@ -219,6 +228,14 @@ export default {
     }
   },
   methods: {
+    async setDecorations(){
+      for(let k in this.window_type){
+        let temp = WebviewWindow.getByLabel(`window-${k}`)
+        if(temp){
+          await temp.setDecorations(this.config.decorations ? true : false)
+        }
+      }
+    },
     reset() {
       let modal = Modal.confirm({
         title: '重置配置',
@@ -239,6 +256,9 @@ export default {
               platform: true, // 平台
               fans: true, // 灯牌
             }, // 显示平台
+            header: false, // 头像
+            backgroundColor: '#00ff00', // 背景色
+            decorations: true, // 边框
           }
           localStorage.setItem('msg-position', JSON.stringify({ x: 0, y: 0 }))
           localStorage.setItem('gift-position', JSON.stringify({ x: 0, y: 0 }))
@@ -262,21 +282,24 @@ export default {
         return
       }
       let source_config = JSON.parse(localStorage.getItem('config'))
-      localStorage.setItem('config', JSON.stringify(this.config))
-      emit('configchange', {})
-      if(source_config.top != this.config.top){
-        let wins = []
-        for (let k in this.window_type) {
+      if(source_config.top !== this.config.top){
+        for(let k in this.window_type){
           let temp = WebviewWindow.getByLabel(`window-${k}`)
           if(temp){
-            wins.push(k)
-            await temp.close()
+            await temp.setAlwaysOnTop(this.config.top ? true : false)
           }
         }
-        for(let k = 0; k < wins.length; k++){
-          await this.openwin(wins[k])
+      }
+      if(source_config.decorations !== this.config.decorations){
+        for(let k in this.window_type){
+          let temp = WebviewWindow.getByLabel(`window-${k}`)
+          if(temp){
+            await temp.setDecorations(this.config.decorations ? true : false)
+          }
         }
       }
+      localStorage.setItem('config', JSON.stringify(this.config))
+      emit('configchange', {})
       this.configShow = false
     },
     configCancel() {
@@ -453,7 +476,8 @@ export default {
         x: x,
         y: y,
         alwaysOnTop: this.config.top,
-        resizable: true
+        resizable: true,
+        decorations: this.config.decorations
       })
     },
     async closewin(type){

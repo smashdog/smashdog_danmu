@@ -31,7 +31,7 @@
 <script>
 import { webset } from './libs/webset'
 import { listen, emit } from '@tauri-apps/api/event'
-import { WebviewWindow } from '@tauri-apps/api/window'
+import { WebviewWindow, appWindow } from '@tauri-apps/api/window'
 
 export default {
   async created() {
@@ -87,9 +87,13 @@ export default {
         
       }
     })
-    const unlisten3 = await listen('configchange', (event) => {
+    let win = WebviewWindow.getByLabel('window-msg')
+    const unlisten3 = await listen('configchange',  async (event) => {
       try {
         this.config = JSON.parse(localStorage.getItem('config'))
+        if(this.config.backgroundColor){
+          document.body.style.backgroundColor = this.config.backgroundColor
+        }
       } catch (error) {
         
       }
@@ -101,7 +105,6 @@ export default {
       unlisten3()
       unlistenall()
     })
-    let win = WebviewWindow.getByLabel('window-msg')
     win.once('tauri://close-requested', async () => {
       let position = await win.innerPosition()
       let size = await win.innerSize()
@@ -114,6 +117,9 @@ export default {
   },
   mounted() {
     if(!import.meta.env.VITE_DEBUG) {webset()}
+    if(this.config.backgroundColor){
+      document.body.style.backgroundColor = this.config.backgroundColor
+    }
   },
   data() {
     return {
@@ -146,6 +152,9 @@ body,div{
 .item{
   width: 100%;
   line-height: 20px;
+}
+.item span{
+  text-shadow: #fff 1px 0 0, #fff 0 1px 0, #fff -1px 0 0, #fff 0 -1px 0;
 }
 /* 定义整个滚动条的样式 */
 ::-webkit-scrollbar {
