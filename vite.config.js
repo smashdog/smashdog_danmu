@@ -68,7 +68,8 @@ export default defineConfig(async () => ({
         msg: path.resolve(__dirname, 'msg.html'),
         gift: path.resolve(__dirname, 'gift.html'),
         index: path.resolve(__dirname, 'index.html'),
-        "in": path.resolve(__dirname, 'in.html')
+        in: path.resolve(__dirname, 'in.html'),
+        desktop: path.resolve(__dirname, 'desktop.html')
       }
     },
     target: "esnext"

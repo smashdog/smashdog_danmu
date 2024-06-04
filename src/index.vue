@@ -14,7 +14,9 @@
         <a-form-item label="进场窗口" name="in">
           <a-switch v-model:checked="window_show.in" @change="danmuWindow('in')"></a-switch>
         </a-form-item>
-        <br>
+        <a-form-item label="合并显示窗口" name="desktop">
+          <a-switch v-model:checked="window_show.desktop" @change="danmuWindow('desktop')"></a-switch>
+        </a-form-item>
       </a-form>
       <a-button type="primary" @click="add()" v-if="list.data.length < 5">添加房间</a-button>
       <a-button type="primary" @click="configShow = true">弹幕配置</a-button>
@@ -98,6 +100,7 @@
           <a-radio-group v-model:value="config.in" button-style="solid" size="small">
             <a-radio-button value="0">全部</a-radio-button>
             <a-radio-button value="1">只显示贵族</a-radio-button>
+            <a-radio-button value="2">不显示</a-radio-button>
           </a-radio-group>
         </a-form-item>
       </a-form>
@@ -169,12 +172,14 @@ export default {
       window_type: {
         msg: '弹幕窗口',
         gift: '礼物窗口',
-        in: '进场窗口'
+        in: '进场窗口',
+        desktop: '桌面弹幕窗口',
       },
       window_show: {
         msg: false,
         gift: false,
         in: false,
+        desktop: false,
       },
       configShow: false,
       config: {
@@ -246,7 +251,7 @@ export default {
           localStorage.removeItem('config')
           this.config = {
             gift: '0',// 显示礼物 0全部 1收费
-            in: '0',// 显示来访 0全部 1贵族
+            in: '0',// 显示来访 0全部 1贵族 2不显示
             top: false,
             like: true,
             danmu: '0',// 显示弹幕 0全部 1有等级用户 2贵族
@@ -472,7 +477,7 @@ export default {
         url: `${window_type}.html`,
         title: this.window_type[window_type],
         width: width,
-        height: height,
+        height: window_type != 'desktop' ? height : 192,
         x: x,
         y: y,
         alwaysOnTop: this.config.top,
@@ -506,7 +511,7 @@ export default {
       if (rt.action == 'gift' && this.config.gift == 1 && rt.gift.price <= 0 && !rt.gift.noble) {
         return
       }
-      if (rt.action == 'in' && this.config.in == 1 && rt.noble_level <= 0) {
+      if (rt.action == 'in' && ((this.config.in == 1 && rt.noble_level <= 0) || this.config.in == 2)) {
         return
       }
       if (rt.action == 'msg' && this.config.msg == 1 && rt.user_level <= 0) {

@@ -7,12 +7,12 @@
             <a-tag color="#f50">系统</a-tag>礼物窗口开启
           </div>
           <div v-else>
-          <span v-if="this.config.platform.platform || this.config.platform.roomId" class="header">
-            <img :src="item.logo" alt="" class="logo" v-if="this.config.platform.platform" align="absmiddle">
-            <a-tag color="blue" v-if="this.config.platform.roomId">
-              <span>{{ item.roomId }}</span>
-            </a-tag>
-          </span>
+            <span v-if="this.config.platform.platform || this.config.platform.roomId" class="header">
+              <img :src="item.logo" alt="" class="logo" v-if="this.config.platform.platform" align="absmiddle">
+              <a-tag color="blue" v-if="this.config.platform.roomId">
+                <span>{{ item.roomId }}</span>
+              </a-tag>
+            </span>
             <img v-if="item.header.length > 0" :src="item.header" alt="" class="logo" align="absmiddle">
             {{ item.user_title }}
             <span v-if="item.gift.noble">
@@ -20,7 +20,8 @@
             </span>
             <span v-else>
               赠送{{ item.gift.title }}
-              <span v-if="item.gift.hits > 0">x{{ item.platform == '斗鱼' ? item.gift.hits : item.gift.count * item.gift.hits }}</span>
+              <span v-if="item.gift.hits > 0">x{{ item.platform == '斗鱼' ? item.gift.hits : item.gift.count *
+                item.gift.hits }}</span>
               <a-tag color="red" v-if="item.platform != '斗鱼' && item.gift.price > 0">￥{{ item.gift.price }}</a-tag>
             </span>
           </div>
@@ -36,14 +37,14 @@ import { WebviewWindow } from '@tauri-apps/api/window'
 
 export default {
   async created() {
-    if(localStorage.getItem('config')){
+    if (localStorage.getItem('config')) {
       this.config = JSON.parse(localStorage.getItem('config'))
     }
     this.lists.push({
       platform: '',
       roomId: '',
       user_title: '系统',
-      gift:{
+      gift: {
         title: '',
         count: 0,
         hits: 0,
@@ -52,23 +53,23 @@ export default {
       }
     })
     const unlisten = await listen('sync-gift', (event) => {
-      if(this.lists.length > 100){
+      if (this.lists.length > 100) {
         this.lists.shift()
       }
       let rt = event.payload, last = this.lists[this.lists.length - 1]
       this.last = last
-      switch(rt.platform){
+      switch (rt.platform) {
         case '虎牙':
-            if(this.lists.length > 0 && last.user_title == rt.user_title && last.gift.title == rt.gift.title && rt.gift.count == last.gift.count && rt.gift.hits > last.gift.hits){
-              this.lists[this.lists.length - 1] = rt
-            }else{
-              this.lists.push(rt)
-            }
+          if (this.lists.length > 0 && last.user_title == rt.user_title && last.gift.title == rt.gift.title && rt.gift.count == last.gift.count && rt.gift.hits > last.gift.hits) {
+            this.lists[this.lists.length - 1] = rt
+          } else {
+            this.lists.push(rt)
+          }
           break
         default:
-          if(this.lists.length > 0 && last.user_title == rt.user_title && last.gift.title == rt.gift.title && rt.gift.hits > last.gift.hits){
+          if (this.lists.length > 0 && last.user_title == rt.user_title && last.gift.title == rt.gift.title && rt.gift.hits > last.gift.hits) {
             this.lists[this.lists.length - 1] = rt
-          }else{
+          } else {
             this.lists.push(rt)
           }
       }
@@ -77,11 +78,11 @@ export default {
     const unlisten1 = await listen('configchange', async (event) => {
       try {
         this.config = JSON.parse(localStorage.getItem('config'))
-        if(this.config.backgroundColor){
+        if (this.config.backgroundColor) {
           document.body.style.backgroundColor = this.config.backgroundColor
         }
       } catch (error) {
-        
+
       }
     })
     const unlistenall = await listen('unliste-gift', (event) => {
@@ -90,18 +91,20 @@ export default {
       unlistenall()
     })
     win.once('tauri://close-requested', async () => {
-      let position = await win.innerPosition()
-      let size = await win.innerSize()
-      localStorage.setItem('gift-position', JSON.stringify(position))
-      localStorage.setItem('gift-size', JSON.stringify(size))
+      // let position = await win.innerPosition()
+      // let size = await win.innerSize()
+      // localStorage.setItem('gift-position', JSON.stringify(position))
+      // localStorage.setItem('gift-size', JSON.stringify(size))
+      unlisten()
+      unlisten1()
       unlistenall()
-      emit(`subwindow-close`, {type: 'gift'})
+      emit(`subwindow-close`, { type: 'gift' })
       await win.close()
     })
   },
   mounted() {
-    if(!import.meta.env.VITE_DEBUG) {webset()}
-    if(this.config.backgroundColor){
+    if (!import.meta.env.VITE_DEBUG) { webset() }
+    if (this.config.backgroundColor) {
       document.body.style.backgroundColor = this.config.backgroundColor
     }
   },
@@ -114,39 +117,6 @@ export default {
   },
 }
 </script>
-<style>
-body,div{
-  margin: 0;
-  padding: 0;
-}
-.main{
-  width: 100%;
-  display: flex;
-  height: 100vh;
-}
-.child{
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  overflow-y: scroll;
-  margin: 10px 5px;
-}
-.item{
-  width: 100%;
-  line-height: 20px;
-}
-/* 定义整个滚动条的样式 */
-::-webkit-scrollbar {
-    width: 0; /* 滚动条宽度 */
-}
-img.logo{
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  margin: 0;
-  padding: 0;
-}
+<style lang="less">
+@import url('./assets/subwindow.less');
 </style>

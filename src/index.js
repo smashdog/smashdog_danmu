@@ -52,6 +52,9 @@ if(!localStorage.getItem('gift_window_show')){
 if(!localStorage.getItem('in_window_show')){
   localStorage.setItem('in_window_show', 'false')
 }
+if(!localStorage.getItem('desktop_window_show')){
+  localStorage.setItem('desktop_window_show', 'false')
+}
 
 let app = createApp(App)
 

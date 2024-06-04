@@ -16,7 +16,7 @@
             {{ item.noble_title }}:{{ item.noble_level }}
           </a-tag>
           <img v-if="item.header.length > 0" :src="item.header" alt="" class="logo" align="absmiddle">
-          {{item.user_title}}进入了直播间
+          <span>{{ item.user_title }}进入了直播间</span>
         </div>
       </div>
     </div>
@@ -29,14 +29,14 @@ import { WebviewWindow } from '@tauri-apps/api/window'
 
 export default {
   async created() {
-    if(localStorage.getItem('config')){
+    if (localStorage.getItem('config')) {
       this.config = JSON.parse(localStorage.getItem('config'))
     }
     this.lists.push({
       platform: '',
       roomId: '',
       user_title: '系统',
-      gift:{
+      gift: {
         title: '',
         count: 0,
         hits: 0,
@@ -48,22 +48,22 @@ export default {
       try {
         let rt = event.payload
         this.lists.push(rt)
-        if(this.lists.length > 100){
+        if (this.lists.length > 100) {
           this.lists.shift()
         }
       } catch (error) {
-        
+
       }
     })
     let win = WebviewWindow.getByLabel('window-in')
     const unlisten1 = await listen('configchange', async (event) => {
       try {
         this.config = JSON.parse(localStorage.getItem('config'))
-        if(this.config.backgroundColor){
+        if (this.config.backgroundColor) {
           document.body.style.backgroundColor = this.config.backgroundColor
         }
       } catch (error) {
-        
+
       }
     })
     const unlistenall = await listen('unlisten-in', (event) => {
@@ -72,18 +72,20 @@ export default {
       unlistenall()
     })
     win.once('tauri://close-requested', async () => {
-      let position = await win.innerPosition()
-      let size = await win.innerSize()
-      localStorage.setItem('in-position', JSON.stringify(position))
-      localStorage.setItem('in-size', JSON.stringify(size))
+      // let position = await win.innerPosition()
+      // let size = await win.innerSize()
+      // localStorage.setItem('in-position', JSON.stringify(position))
+      // localStorage.setItem('in-size', JSON.stringify(size))
+      unlisten()
+      unlisten1()
       unlistenall()
-      emit(`subwindow-close`, {type: 'in'})
+      emit(`subwindow-close`, { type: 'in' })
       await win.close()
     })
   },
   mounted() {
-    if(!import.meta.env.VITE_DEBUG) {webset()}
-    if(this.config.backgroundColor){
+    if (!import.meta.env.VITE_DEBUG) { webset() }
+    if (this.config.backgroundColor) {
       document.body.style.backgroundColor = this.config.backgroundColor
     }
   },
@@ -95,39 +97,6 @@ export default {
   },
 }
 </script>
-<style>
-body,div{
-  margin: 0;
-  padding: 0;
-}
-.main{
-  width: 100%;
-  display: flex;
-  height: 100vh;
-}
-.child{
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: flex-start;
-  overflow-y: scroll;
-  margin: 10px 5px;
-}
-.item{
-  width: 100%;
-  line-height: 20px;
-}
-/* 定义整个滚动条的样式 */
-::-webkit-scrollbar {
-    width: 0; /* 滚动条宽度 */
-}
-img.logo{
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  margin: 0;
-  padding: 0;
-}
+<style lang="less">
+@import url('./assets/subwindow.less');
 </style>
