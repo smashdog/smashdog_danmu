@@ -41,6 +41,7 @@ if (!localStorage.getItem('config')) {
     header: false, // 头像
     backgroundColor: '#00ff00', // 背景色
     decorations: true, // 边框
+    desktop: false, // 合并显示
   }))
 }
 if(!localStorage.getItem('msg_window_show')){

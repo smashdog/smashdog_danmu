@@ -18,6 +18,17 @@
           <a-switch v-model:checked="window_show.desktop" @change="danmuWindow('desktop')"></a-switch>
         </a-form-item>
       </a-form>
+      <a-form layout="inline" :model="config" @finish="() => { }" @finishFailed="() => { }">
+        <a-form-item label="子窗口是否置顶" name="top">
+          <a-switch v-model:checked="config.top" @change="setTop()"></a-switch>
+        </a-form-item>
+        <a-form-item label="子窗口是否显示边框" name="decorations">
+          <a-switch v-model:checked="config.decorations" @change="setDecorations()"></a-switch>
+        </a-form-item>
+        <a-form-item label="子窗口背景色" name="backgroundColor">
+          <a-input v-model:value="config.backgroundColor" type="color" @change="changeBackground()" style="width: 50px;" />
+        </a-form-item>
+      </a-form>
       <a-button type="primary" @click="add()" v-if="list.data.length < 5">添加房间</a-button>
       <a-button type="primary" @click="configShow = true">弹幕配置</a-button>
       <a-popover title="tips">
@@ -62,15 +73,6 @@
     <a-modal v-model:open="configShow" title="配置" @ok="configOk()" okText="提交" cancelText="取消" ref="configRef"
       @cancel="configCancel()" width="100%" wrap-class-name="full-modal">
       <a-form :model="config" autocomplete="off" @finish="configOk()" @finishFailed="() => { }">
-        <a-form-item label="子窗口是否置顶" name="top">
-          <a-switch v-model:checked="config.top" />
-        </a-form-item>
-        <a-form-item label="子窗口是否显示边框" name="decorations">
-          <a-switch v-model:checked="config.decorations" />
-        </a-form-item>
-        <a-form-item label="子窗口背景色" name="backgroundColor">
-          <a-input v-model:value="config.backgroundColor" type="color" />
-        </a-form-item>
         <a-form-item label="弹幕设置" name="danmu" class="danmulabel">
           <a-radio-group v-model:value="config.danmu" button-style="solid" size="small">
             <a-radio-button value="0">全部显示</a-radio-button>
@@ -131,18 +133,21 @@ export default {
       this.window_show[k] = localStorage.getItem(`${k}_window_show`) == 'true' ? true : false
       if(this.window_show[k]){
         await this.openwin(k)
+        if(k == 'desktop'){
+          this.config.desktop = true
+        }
       }
     }
     appWindow.once('tauri://close-requested', async () => {
       try {
-        for (let k in this.window_type) {
-          const temp = WebviewWindow.getByLabel(`window-${k}`)
-          if(temp){
-            const position = await temp.innerPosition()
-            localStorage.setItem(`${k}-position`, JSON.stringify(position))
-            temp.close()
-          }
-        }
+        // for (let k in this.window_type) {
+        //   const temp = WebviewWindow.getByLabel(`window-${k}`)
+        //   if(temp){
+        //     const position = await temp.innerPosition()
+        //     localStorage.setItem(`${k}-position`, JSON.stringify(position))
+        //     temp.close()
+        //   }
+        // }
         for (let k in this.wsTime) {
           clearInterval(this.wsTime[k])
         }
@@ -173,7 +178,7 @@ export default {
         msg: '弹幕窗口',
         gift: '礼物窗口',
         in: '进场窗口',
-        desktop: '桌面弹幕窗口',
+        desktop: '合并显示窗口',
       },
       window_show: {
         msg: false,
@@ -197,6 +202,7 @@ export default {
         header: false, // 头像
         backgroundColor: '#00ff00', // 背景色
         decorations: true, // 边框
+        desktop: false, // 合并显示
       },
       form: {
         roomId: '',
@@ -233,7 +239,21 @@ export default {
     }
   },
   methods: {
+    async changeBackground(){
+      localStorage.setItem('config', JSON.stringify(this.config))
+      emit('configchange', {})
+    },
+    async setTop(){
+      localStorage.setItem('config', JSON.stringify(this.config))
+      for(let k in this.window_type){
+        let temp = WebviewWindow.getByLabel(`window-${k}`)
+        if(temp){
+          await temp.setAlwaysOnTop(this.config.top ? true : false)
+        }
+      }
+    },
     async setDecorations(){
+      localStorage.setItem('config', JSON.stringify(this.config))
       for(let k in this.window_type){
         let temp = WebviewWindow.getByLabel(`window-${k}`)
         if(temp){
@@ -287,14 +307,6 @@ export default {
         return
       }
       let source_config = JSON.parse(localStorage.getItem('config'))
-      if(source_config.top !== this.config.top){
-        for(let k in this.window_type){
-          let temp = WebviewWindow.getByLabel(`window-${k}`)
-          if(temp){
-            await temp.setAlwaysOnTop(this.config.top ? true : false)
-          }
-        }
-      }
       if(source_config.decorations !== this.config.decorations){
         for(let k in this.window_type){
           let temp = WebviewWindow.getByLabel(`window-${k}`)

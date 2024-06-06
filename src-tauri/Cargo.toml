@@ -1,6 +1,6 @@
 [package]
 name = "danmu"
-version = "0.5.0"
+version = "0.5.1"
 description = "心情过客的弹幕工具"
 authors = ["心情过客"]
 edition = "2021"
