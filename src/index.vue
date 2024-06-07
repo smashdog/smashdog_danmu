@@ -120,6 +120,7 @@ import { webset } from './libs/webset'
 import { getVersion } from '@tauri-apps/api/app'
 import { listen } from '@tauri-apps/api/event'
 import { fetch as httpFetch, ResponseType } from '@tauri-apps/api/http'
+import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification'
 
 export default {
   async created() {
@@ -400,6 +401,14 @@ export default {
             this.wsStatus[data.platform + data.roomId] && await this.wsStatus[data.platform + data.roomId].destroy()
             this.wsStatus[data.platform + data.roomId] && delete (this.wsStatus[data.platform + data.roomId])
             message.error(data.message)
+            let permissionGranted = await isPermissionGranted()
+            if (!permissionGranted) {
+              const permission = await requestPermission()
+              permissionGranted = permission === 'granted'
+            }
+            if (permissionGranted) {
+              sendNotification({ title: '心情过客的弹幕工具提示', body: data.message })
+            }
           } catch (error) {
 
           }
@@ -553,6 +562,9 @@ export default {
             rt.header = 'data:image/png;base64,' + base64String
           }
         }
+      }
+      if(rt.msg){
+        console.log(rt)
       }
       emit(`sync-${rt.action}`, rt)
     },

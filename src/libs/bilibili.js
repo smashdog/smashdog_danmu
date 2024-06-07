@@ -61,13 +61,15 @@ export class bilibili {
                     price: 0, // 价值
                     hits: 0, // 连击
                     noble: false // 是否订阅
-                  }
+                  },
+                  uid: 0, // 用户id
                 }
                 switch (data.cmd) {
                   case 'LIVE_OPEN_PLATFORM_DM':
                     rt.action = 'msg'
                     rt.user_title = data.data.uname
                     rt.header = data.data.uface
+                    rt.uid = data.data.open_id
                     if(data.data.dm_type == 1){
                       rt.msg = `<img src="${data.data.emoji_img_url}" style="height: 28px;display: inline-block;">`
                     }else{

@@ -6,25 +6,7 @@
           <div v-if="item.user_title == '系统'">
             <a-tag color="#f50">系统</a-tag>礼物窗口开启
           </div>
-          <div v-else>
-            <span v-if="this.config.platform.platform || this.config.platform.roomId" class="header">
-              <img :src="item.logo" alt="" class="logo" v-if="this.config.platform.platform" align="absmiddle">
-              <a-tag color="blue" v-if="this.config.platform.roomId">
-                <span>{{ item.roomId }}</span>
-              </a-tag>
-            </span>
-            <img v-if="item.header.length > 0" :src="item.header" alt="" class="logo" align="absmiddle">
-            {{ item.user_title }}
-            <span v-if="item.gift.noble">
-              开通{{ item.gift.title }}{{ item.gift.count }}个{{ item.msg }}
-            </span>
-            <span v-else>
-              赠送{{ item.gift.title }}
-              <span v-if="item.gift.hits > 0">x{{ item.platform == '斗鱼' ? item.gift.hits : item.gift.count *
-                item.gift.hits }}</span>
-              <a-tag color="red" v-if="item.platform != '斗鱼' && item.gift.price > 0">￥{{ item.gift.price }}</a-tag>
-            </span>
-          </div>
+          <msg v-else :config="config" :item="item"></msg>
         </div>
       </div>
     </div>
@@ -34,8 +16,12 @@
 import { webset } from './libs/webset'
 import { listen, emit } from '@tauri-apps/api/event'
 import { WebviewWindow } from '@tauri-apps/api/window'
+import msg from './components/msg.vue'
 
 export default {
+  components:{
+    msg
+  },
   async created() {
     if (localStorage.getItem('config')) {
       this.config = JSON.parse(localStorage.getItem('config'))

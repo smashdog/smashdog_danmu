@@ -71,7 +71,8 @@ export class huya {
             price: 0, // 价值
             hits: 0, // 连击
             noble: false // 是否订阅
-          }
+          },
+          uid: 0, // 用户id
         }, data = JSON.parse(e.data)
         try {
           switch (data.notice) {
@@ -82,6 +83,7 @@ export class huya {
               rt.action = 'msg'
               rt.user_title = data.data.sendNick
               rt.header = data.data.senderAvatarUrl
+              rt.uid = data.data.unionId
               if (typeof data.data.nobleLevel != 'undefined' && data.data.nobleLevel > 0) {
                 rt.noble_level = data.data.nobleLevel
                 rt.noble_title = '贵'
@@ -109,7 +111,7 @@ export class huya {
               rt.gift = {
                 title: data.data.itemName,
                 count: data.data.sendItemCount,
-                price: parseFloat((data.data.totalPay/100).toFixed(2)),
+                price: parseFloat((data.data.totalPay/100*data.data.sendItemComboHits).toFixed(2)),
                 hits: data.data.sendItemComboHits,
                 noble: false
               }

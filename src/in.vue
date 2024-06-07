@@ -5,19 +5,7 @@
         <div v-if="item.user_title == '系统'">
           <a-tag color="#f50">系统</a-tag>进场窗口开启
         </div>
-        <div class="item-child" v-else>
-          <span v-if="this.config.platform.platform || this.config.platform.roomId" class="header">
-            <img :src="item.logo" alt="" class="logo" v-if="this.config.platform.platform" align="absmiddle">
-            <a-tag color="blue" v-if="this.config.platform.roomId">
-              <span>{{ item.roomId }}</span>
-            </a-tag>
-          </span>
-          <a-tag color="blue" v-if="item.noble_level > 0">
-            {{ item.noble_title }}:{{ item.noble_level }}
-          </a-tag>
-          <img v-if="item.header.length > 0" :src="item.header" alt="" class="logo" align="absmiddle">
-          <span>{{ item.user_title }}进入了直播间</span>
-        </div>
+        <msg v-else :config="config" :item="item"></msg>
       </div>
     </div>
   </div>
@@ -26,8 +14,12 @@
 import { listen, emit } from '@tauri-apps/api/event'
 import { webset } from './libs/webset'
 import { WebviewWindow } from '@tauri-apps/api/window'
+import msg from './components/msg.vue'
 
 export default {
+  components:{
+    msg
+  },
   async created() {
     if (localStorage.getItem('config')) {
       this.config = JSON.parse(localStorage.getItem('config'))

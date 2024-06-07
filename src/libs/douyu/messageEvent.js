@@ -40,7 +40,8 @@ export default {
         price: 0, // 价值
         hits: 0, // 连击
         noble: false // 是否订阅
-      }
+      },
+      uid: 0, // 用户ID
     }
   },
   loginres: function (r) {
@@ -89,6 +90,7 @@ export default {
     rt.fans_level = r.bl?Number(r.bl):0
     rt.user_level = Number(r.level)
     rt.header = r.ic
+    rt.uid = r.uid
     if(r.nl){
       rt.noble_level = '贵'
       rt.noble_level = Number(r.nl)
