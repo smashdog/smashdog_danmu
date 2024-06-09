@@ -141,14 +141,14 @@ export default {
     }
     appWindow.once('tauri://close-requested', async () => {
       try {
-        // for (let k in this.window_type) {
-        //   const temp = WebviewWindow.getByLabel(`window-${k}`)
-        //   if(temp){
-        //     const position = await temp.innerPosition()
-        //     localStorage.setItem(`${k}-position`, JSON.stringify(position))
-        //     temp.close()
-        //   }
-        // }
+        for (let k in this.window_type) {
+          const temp = WebviewWindow.getByLabel(`window-${k}`)
+          if(temp){
+            // const position = await temp.innerPosition()
+            // localStorage.setItem(`${k}-position`, JSON.stringify(position))
+            temp.close()
+          }
+        }
         for (let k in this.wsTime) {
           clearInterval(this.wsTime[k])
         }
